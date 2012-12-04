@@ -158,7 +158,7 @@ public class MarketsService {
 		ArrayOfBet betArray = null;
 		List<Bet> bets = null;
 
-		while ((betArray = monitorBetsService.getCurrentBets(marketId,
+		if ((betArray = monitorBetsService.getCurrentBets(marketId,
 				BetStatusEnum.U)) != null) {
 
 			bets = betArray.getBet();
