@@ -36,6 +36,17 @@ public class PlaceBetsService {
 	private static double MAXIMUM_PRICE = 1000.0;
 
 	/**
+	 * 
+	 * @param d
+	 * @return
+	 */
+	protected String formatStake(Double d) {
+	    synchronized(roundToTwoDecPlaces) {
+	        return roundToTwoDecPlaces.format(d);
+	    }
+	}	
+	
+	/**
 	 * Constructor taking as arguments the BFExchangeService used to execute the
 	 * bets, and the APIRequestHeader which contains the session ie login
 	 * credentials
@@ -242,7 +253,7 @@ public class PlaceBetsService {
 		final ArrayOfUpdateBets arrayOfUpdateBets = new ArrayOfUpdateBets();
 		final UpdateBets updateBets = new UpdateBets();
 		updateBets.setBetId(betId);
-		updateBets.setNewSize((Double.parseDouble(roundToTwoDecPlaces.format(newStake))));
+		updateBets.setNewSize((Double.parseDouble(formatStake(newStake))));
 		updateBets.setOldSize(oldStake);
 		updateBets.setOldPrice(oldPrice);
 		updateBets.setNewPrice(newPrice);

@@ -14,6 +14,16 @@ public class PriceOperator {
     
     private static DecimalFormat priceFormat = new DecimalFormat("##.##");
 
+	/**
+	 * 
+	 * @param d
+	 * @return
+	 */
+	protected static String formatPrice(Double d) {
+	    synchronized(priceFormat) {
+	        return priceFormat.format(d);
+	    }
+	}
  
     /**
      * Decrement a price by one tick
@@ -45,7 +55,7 @@ public class PriceOperator {
             newPrice = price - 0.01;
         }
 
-        newPrice = Double.parseDouble(priceFormat.format(newPrice));
+        newPrice = Double.parseDouble(formatPrice(newPrice));
         return newPrice;
     }
 
@@ -79,7 +89,7 @@ public class PriceOperator {
             newPrice = price + 0.01;
         }
 
-        newPrice = Double.parseDouble(priceFormat.format(newPrice));
+        newPrice = Double.parseDouble(formatPrice(newPrice));
         return newPrice;
     }
 

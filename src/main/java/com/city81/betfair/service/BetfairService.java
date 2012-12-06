@@ -11,7 +11,6 @@ import com.betfair.publicapi.v3.bfglobalservice.BFGlobalService_Service;
 import com.betfair.publicapi.v5.bfexchangeservice.BFExchangeService;
 import com.betfair.publicapi.v5.bfexchangeservice.BFExchangeService_Service;
 
-
 /**
  * This class provides services for placing specific bets eg a bet on either a
  * home win, an away win or a draw for a fixture between two teams.
@@ -78,7 +77,7 @@ public class BetfairService {
 	 * @param marketId
 	 * @return
 	 */
-	public Integer getFavourite(int marketId) {	
+	public synchronized Integer getFavourite(int marketId) {	
 		return this.marketsService.getFavourite(marketId);				
 	}	
 	
@@ -87,7 +86,7 @@ public class BetfairService {
 	 * @param marketIds
 	 * @return
 	 */
-	public void updateUnmatchedBets(Integer marketId) {	
+	public synchronized void updateUnmatchedBets(Integer marketId) {	
 		this.marketsService.updateUnmatchedBets(marketId);			
 	}		
 		
@@ -97,7 +96,7 @@ public class BetfairService {
 	 * @param betStatus
 	 * @return
 	 */
-	public ArrayOfBet getCurrentBets(Integer marketId, BetStatusEnum betStatus ) {
+	public synchronized ArrayOfBet getCurrentBets(Integer marketId, BetStatusEnum betStatus ) {
 		return this.monitorBetsService.getCurrentBets(marketId, betStatus);
 	}
 
@@ -105,7 +104,7 @@ public class BetfairService {
 	 * 
 	 * @return
 	 */
-	public double getAccountBalance() {	
+	public synchronized double getAccountBalance() {	
 		return this.accountsService.getAccountBalances().getBalance();	
 	}	
 	
@@ -113,7 +112,7 @@ public class BetfairService {
 	 * 
 	 * @return
 	 */
-	public double getAvailableAccountBalance() {	
+	public synchronized double getAvailableAccountBalance() {	
 		return this.accountsService.getAccountBalances().getAvailBalance();	
 	}	
 
@@ -123,7 +122,7 @@ public class BetfairService {
 	 * @param selectionName
 	 * @return
 	 */
-	public Integer getSelectionId(int marketId, String selectionName) {
+	public synchronized Integer getSelectionId(int marketId, String selectionName) {
 		return this.marketsService.getSelectionId(marketId, selectionName);
 	}
 	
@@ -134,7 +133,7 @@ public class BetfairService {
 	 * @param marketName
 	 * @return
 	 */
-	public Integer getMarketId(int eventId, String eventName, String marketName) {
+	public synchronized Integer getMarketId(int eventId, String eventName, String marketName) {
 		return this.eventsService.getMarketId(eventId, eventName, marketName);
 	}
 	
@@ -147,7 +146,7 @@ public class BetfairService {
 	 * @param stake
 	 * @param betPersistenceType
 	 */
-	public void placeBet(BetTypeEnum betType, int marketId, int selectionId, 
+	public synchronized void placeBet(BetTypeEnum betType, int marketId, int selectionId, 
 			double price, double stake, BetPersistenceTypeEnum betPersistenceType) {
 		this.placeBetsService.placeBet(betType, marketId, selectionId,
 				price, stake, betPersistenceType);			
