@@ -85,7 +85,7 @@ public class PlaceBetsService {
 					price, stake, betPersistenceType);
 			}
 		} else {
-			placeBet(betType, marketId, selectionId,
+			place(betType, marketId, selectionId,
 					price, stake, betPersistenceType);
 		}
 		
