@@ -1,5 +1,6 @@
 package com.city81.betfair.service;
 
+import java.util.Date;
 import java.util.List;
 
 import com.betfair.publicapi.types.exchange.v5.APIRequestHeader;
@@ -108,8 +109,48 @@ public class MarketsService {
 	 * @param selectionName
 	 * @return
 	 */
+	public Date getMarketStartTime(int marketId) {
+
+		Date startTime = null;
+		
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
+		GetMarketReq getMarketReq = new GetMarketReq();
+		getMarketReq.setHeader(exchangeHeader);
+		getMarketReq.setMarketId(marketId);
+
+		// get the market
+		GetMarketResp getMarketResp = bfExchangeService.getMarket(getMarketReq);
+
+		if (getMarketResp.getErrorCode().equals(GetMarketErrorEnum.OK)) {
+			startTime = getMarketResp.getMarket().getMarketTime().toGregorianCalendar().getTime();
+		}
+		
+		return startTime;
+	}	
+	
+	
+	/**
+	 * 
+	 * @param marketId
+	 * @param selectionName
+	 * @return
+	 */
 	public Integer getSelectionId(int marketId, String selectionName) {
 
+		
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
 		Integer selectionId = null;
 
 		GetMarketReq getMarketReq = new GetMarketReq();

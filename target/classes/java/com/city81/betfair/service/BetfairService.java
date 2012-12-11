@@ -1,5 +1,7 @@
 package com.city81.betfair.service;
 
+import java.util.Date;
+
 import com.betfair.publicapi.types.exchange.v5.ArrayOfBet;
 import com.betfair.publicapi.types.exchange.v5.BetPersistenceTypeEnum;
 import com.betfair.publicapi.types.exchange.v5.BetStatusEnum;
@@ -124,6 +126,15 @@ public class BetfairService {
 	 */
 	public synchronized Integer getSelectionId(int marketId, String selectionName) {
 		return this.marketsService.getSelectionId(marketId, selectionName);
+	}
+	
+	/**
+	 * 
+	 * @param marketId
+	 * @return
+	 */
+	public synchronized Date getMarketStartTime(int marketId) {
+		return this.marketsService.getMarketStartTime(marketId);
 	}
 	
 	/**
