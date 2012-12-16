@@ -63,6 +63,13 @@ public class EventsService {
 	 */
 	public Integer getMarketId(int eventId, String marketName) {
 
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
 		Integer marketId = null;
 
 		GetEventsReq getEventsReq = new GetEventsReq();
@@ -95,6 +102,13 @@ public class EventsService {
 
 	public Integer getEventId(int parentEventId, String fixture) {
 
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
 		Integer eventId = null;
 
 		GetEventsReq getEventsReq = new GetEventsReq();

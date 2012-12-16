@@ -46,6 +46,13 @@ public class MonitorBetsService {
 	 */
 	public ArrayOfBet getCurrentBets(Integer marketId, BetStatusEnum betStatus ) {
 
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
         GetCurrentBetsReq getMatchedBetsReq = new GetCurrentBetsReq();
         getMatchedBetsReq.setHeader(exchangeHeader);
         getMatchedBetsReq.setBetStatus(betStatus);
@@ -71,6 +78,13 @@ public class MonitorBetsService {
 	 */
 	public ArrayOfBet getCurrentBets(Integer marketId, Integer selectionId, BetStatusEnum betStatus) {
 
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
         GetCurrentBetsReq getMatchedBetsReq = new GetCurrentBetsReq();
         getMatchedBetsReq.setHeader(exchangeHeader);
         getMatchedBetsReq.setBetStatus(betStatus);

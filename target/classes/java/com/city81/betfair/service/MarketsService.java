@@ -115,7 +115,7 @@ public class MarketsService {
 		
 		// identify selection but due to throttling wait for 12 secs before calling
 		try {
-			Thread.sleep(12000);
+			Thread.sleep(24000);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
@@ -146,7 +146,7 @@ public class MarketsService {
 		
 		// identify selection but due to throttling wait for 12 secs before calling
 		try {
-			Thread.sleep(12000);
+			Thread.sleep(24000);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
@@ -188,6 +188,13 @@ public class MarketsService {
 	 */
 	public void updateUnmatchedBets(Integer marketId) {
 
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
 		ArrayOfBet betArray = null;
 		List<Bet> bets = null;
 
@@ -222,6 +229,13 @@ public class MarketsService {
 	 */
 	public void updateUnmatchedBets(Integer market, Integer selectionId) {
 
+		// identify selection but due to throttling wait for 12 secs before calling
+		try {
+			Thread.sleep(12000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		
 		ArrayOfBet betArray = null;
 		List<Bet> bets = null;
 
