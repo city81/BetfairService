@@ -85,11 +85,21 @@ public class BetfairService {
 	
 	/**
 	 * 
-	 * @param marketIds
+	 * @param marketId
 	 * @return
 	 */
 	public synchronized void updateUnmatchedBets(Integer marketId) {	
 		this.marketsService.updateUnmatchedBets(marketId);			
+	}		
+		
+	/**
+	 * 
+	 * @param marketId
+	 * @param selectionId
+	 * @return
+	 */
+	public synchronized void updateUnmatchedBets(Integer marketId, Integer selectionId) {	
+		this.marketsService.updateUnmatchedBets(marketId, selectionId);			
 	}		
 		
 	/**
@@ -100,6 +110,17 @@ public class BetfairService {
 	 */
 	public synchronized ArrayOfBet getCurrentBets(Integer marketId, BetStatusEnum betStatus ) {
 		return this.monitorBetsService.getCurrentBets(marketId, betStatus);
+	}
+
+	/**
+	 * 
+	 * @param marketId
+	 * @param selectionId
+	 * @param betStatus
+	 * @return
+	 */
+	public synchronized ArrayOfBet getCurrentBets(Integer marketId, Integer selectionId, BetStatusEnum betStatus ) {
+		return this.monitorBetsService.getCurrentBets(marketId, selectionId, betStatus);
 	}
 
 	/**

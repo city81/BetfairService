@@ -129,6 +129,8 @@ public class MarketsService {
 
 		if (getMarketResp.getErrorCode().equals(GetMarketErrorEnum.OK)) {
 			startTime = getMarketResp.getMarket().getMarketTime().toGregorianCalendar().getTime();
+		} else {
+			System.out.println("Marketsservice - getMarketStartTime - " + getMarketResp.getHeader().getErrorCode());
 		}
 		
 		return startTime;

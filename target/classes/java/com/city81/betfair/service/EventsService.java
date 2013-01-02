@@ -79,7 +79,7 @@ public class EventsService {
 		// get the markets
 		GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
 		if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
-			System.out.println(getEventsResp.getErrorCode());
+			System.out.println("EventsService - getMarketId - " + getEventsResp.getErrorCode());
 		}
 		List<MarketSummary> markets = getEventsResp.getMarketItems()
 				.getMarketSummary();
@@ -118,7 +118,7 @@ public class EventsService {
 		// get the events
 		GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
 		if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
-			System.out.println(getEventsResp.getErrorCode());
+			System.out.println("EventsService - getEventId - " + getEventsResp.getErrorCode());
 		}
 		if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.INVALID_EVENT_ID))) {
 			List<BFEvent> events = getEventsResp.getEventItems().getBFEvent();
