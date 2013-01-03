@@ -1,4 +1,4 @@
 BetfairService
 ==============
 
-Provides an API to perform tasks not offered via the Betfair API service itself.
+Provides a Java API to the Betfair Web Service. Also exposes methods which the service itself doesn't offer eg getFavourite, placeSmallStakeBets
