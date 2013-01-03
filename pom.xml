@@ -37,11 +37,10 @@
 							<goal>wsimport</goal>
 						</goals>
 						<configuration>
-							<wsdlFiles>
-								<wsdlFile>BFGlobalService.wsdl</wsdlFile>
-								<wsdlFile>BFExchangeService.wsdl</wsdlFile>
-							</wsdlFiles>
-							<bindingDirectory>${basedir}/src/wsdl</bindingDirectory>
+							<wsdlUrls>
+								<wsdlURL>https://api.betfair.com/exchange/v5/BFExchangeService.wsdl</wsdlURL>
+								<wsdlURL>https://api.betfair.com/global/v3/BFGlobalService.wsdl</wsdlURL>
+							</wsdlUrls>
 						</configuration>
 						<id>generate-sources</id>
 						<phase>generate-sources</phase>
