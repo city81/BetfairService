@@ -6,7 +6,7 @@ import com.betfair.publicapi.types.exchange.v5.GetAccountFundsResp;
 import com.betfair.publicapi.v5.bfexchangeservice.BFExchangeService;
 
 /**
- * This class provides services for retrieving account balances and accoutn
+ * This class provides services for retrieving account balances and account
  * statements.
  * 
  * @author geraint.jones
@@ -33,6 +33,11 @@ public class AccountsService {
 		this.exchangeHeader = exchangeHeader;
 	}
 
+	/**
+	 * Obtain account fund information. 
+	 * 
+	 * @return GetAccountFundsResp response object containing account fund information
+	 */
 	public GetAccountFundsResp getAccountBalances() {
 
 		GetAccountFundsReq getAccountFundsReq = new GetAccountFundsReq();

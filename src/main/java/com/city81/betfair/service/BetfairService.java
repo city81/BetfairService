@@ -17,6 +17,9 @@ import com.betfair.publicapi.v5.bfexchangeservice.BFExchangeService_Service;
  * This class provides services for placing specific bets eg a bet on either a
  * home win, an away win or a draw for a fixture between two teams.
  * 
+ * NOTE: methods are synchronised to ensure they are not called in such a way as to 
+ * exceed the throttling thresholds.
+ * 
  * @author geraint.jones
  * 
  */
@@ -26,11 +29,11 @@ public class BetfairService {
 	private BFGlobalService bfGlobalService;
 	private com.betfair.publicapi.types.exchange.v5.APIRequestHeader exchangeHeader;
 	private com.betfair.publicapi.types.global.v3.APIRequestHeader globalHeader;
-	private PlaceBetsService placeBetsService;
+	private BetsService placeBetsService;
 	private EventsService eventsService;
 	private MarketsService marketsService;
 	private AccountsService accountsService;
-	private MonitorBetsService monitorBetsService;
+	private BetsService betsService;
 
 	/**
 	 * Constructor taking as arguments the BFExchangeService used to execute the
@@ -64,119 +67,113 @@ public class BetfairService {
 
 		// create services
 		this.eventsService = new EventsService(bfGlobalService, globalHeader);
-		this.placeBetsService = new PlaceBetsService(bfExchangeService,
+		this.placeBetsService = new BetsService(bfExchangeService,
 				exchangeHeader);
 		this.marketsService = new MarketsService(bfExchangeService,
 				exchangeHeader);
 		this.accountsService = new AccountsService(bfExchangeService,
 				exchangeHeader);
-		this.monitorBetsService = new MonitorBetsService(bfExchangeService,
+		this.betsService = new BetsService(bfExchangeService,
 				exchangeHeader);
 	}
 
 	/**
+	 * Obtain the id of the favourite for a specific market
 	 * 
-	 * @param marketId
-	 * @return
+	 * @param marketId market identifier
+	 * @return Integer the identifier of the shortest priced selection
 	 */
 	public synchronized Integer getFavourite(int marketId) {	
 		return this.marketsService.getFavourite(marketId);				
 	}	
 	
 	/**
+	 * Update unmatched bets for a specific market and selection.
 	 * 
-	 * @param marketId
-	 * @return
-	 */
-	public synchronized void updateUnmatchedBets(Integer marketId) {	
-		this.marketsService.updateUnmatchedBets(marketId);			
-	}		
-		
-	/**
-	 * 
-	 * @param marketId
-	 * @param selectionId
-	 * @return
+	 * @param marketId market identifier
+	 * @param selectionId selection identifier. Can be null.
 	 */
 	public synchronized void updateUnmatchedBets(Integer marketId, Integer selectionId) {	
-		this.marketsService.updateUnmatchedBets(marketId, selectionId);			
+		this.betsService.updateUnmatchedBets(marketId, selectionId);			
 	}		
 		
 	/**
+	 * Obtain current bets for a specific bet status, market and selection.
 	 * 
-	 * @param marketId
-	 * @param betStatus
-	 * @return
+	 * @param betStatus status of bet eg U Unmatched
+	 * @param marketId market identifier. Can be null.
+	 * @param selectionId selection identifier. Can be null.
+	 * @return ArrayOfBet an array of current bets. Can be null if no bets found.
 	 */
-	public synchronized ArrayOfBet getCurrentBets(Integer marketId, BetStatusEnum betStatus ) {
-		return this.monitorBetsService.getCurrentBets(marketId, betStatus);
+	public synchronized ArrayOfBet getCurrentBets(BetStatusEnum betStatus, 
+			Integer marketId, Integer selectionId) {
+		return this.betsService.getCurrentBets(betStatus, marketId, selectionId);
 	}
 
 	/**
-	 * 
-	 * @param marketId
-	 * @param selectionId
-	 * @param betStatus
-	 * @return
-	 */
-	public synchronized ArrayOfBet getCurrentBets(Integer marketId, Integer selectionId, BetStatusEnum betStatus ) {
-		return this.monitorBetsService.getCurrentBets(marketId, selectionId, betStatus);
-	}
-
-	/**
-	 * 
-	 * @return
+	 * Obtain the account balance for the logged in account.
+	 *  
+	 * @return double account balance
 	 */
 	public synchronized double getAccountBalance() {	
 		return this.accountsService.getAccountBalances().getBalance();	
 	}	
 	
 	/**
-	 * 
-	 * @return
+	 * Obtain the available to bet account balance for the logged in account.
+	 *  
+	 * @return double available to bet account balance
 	 */
 	public synchronized double getAvailableAccountBalance() {	
 		return this.accountsService.getAccountBalances().getAvailBalance();	
 	}	
 
+
 	/**
-	 * 
-	 * @param marketId
-	 * @param selectionName
-	 * @return
+	 * Obtain the identifier of a selection for a given market and a selection 
+	 * name
+	 *  
+	 * @param marketId market identifier.
+	 * @param selectionName name of selection eg Man Utd, Draw, 
+	 * 		Swansea/Fulham, Camelot, Astrology 
+	 * return Integer selection identifier.
 	 */
 	public synchronized Integer getSelectionId(int marketId, String selectionName) {
 		return this.marketsService.getSelectionId(marketId, selectionName);
 	}
 	
 	/**
-	 * 
-	 * @param marketId
-	 * @return
+	 * Obtain the start time of of a particular market.
+	 *  
+	 * @param marketId market identifier.
+	 * @return Date start time of market
 	 */
 	public synchronized Date getMarketStartTime(int marketId) {
 		return this.marketsService.getMarketStartTime(marketId);
 	}
 	
 	/**
-	 * 
-	 * @param eventId
-	 * @param eventName
-	 * @param marketName
-	 * @return
+	 * Obtain the identifier of a market for a given event identifer, event name and 
+	 * market name.
+	 *  
+	 * @param eventId event identifier eg 2022802 - Premier League
+	 * @param eventName event name eg Man Utd v Man City
+	 * @param marketName market name eg Match Odds, Half Time
+	 * return Integer market identifier.
 	 */
 	public synchronized Integer getMarketId(int eventId, String eventName, String marketName) {
 		return this.eventsService.getMarketId(eventId, eventName, marketName);
 	}
 	
 	/**
+	 * Place a bet.
 	 * 
-	 * @param betType
-	 * @param marketId
-	 * @param selectionId
-	 * @param price
-	 * @param stake
-	 * @param betPersistenceType
+	 * @param betType type of bet eg B - Back
+	 * @param marketId market identifier.
+	 * @param selectionId selection identifier.
+	 * @param price bet odds
+	 * @param stake bet stake
+	 * @param betPersistenceType type of persistence eg IP - In Play
 	 */
 	public synchronized void placeBet(BetTypeEnum betType, int marketId, int selectionId, 
 			double price, double stake, BetPersistenceTypeEnum betPersistenceType) {

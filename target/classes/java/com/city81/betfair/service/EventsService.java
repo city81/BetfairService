@@ -38,38 +38,52 @@ public class EventsService {
 	}
 
 	/**
-     * 
-     */
-	public Integer getMarketId(int eventId, String fixture, String marketName) {
+	 * Obtain the identifier of a market for a given event identifer, event name
+	 * and market name.
+	 * 
+	 * @param eventId
+	 *            event identifier eg 2022802 - Premier League
+	 * @param eventName
+	 *            event name eg Man Utd v Man City
+	 * @param marketName
+	 *            market name eg Match Odds, Half Time return Integer market
+	 *            identifier.
+	 */
+	public Integer getMarketId(int eventId, String eventName, String marketName) {
 
 		Integer foundId = null;
-		
+
 		// drill down to find the event
-		foundId = getEventId(eventId, fixture);
+		foundId = getEventId(eventId, eventName);
 
 		if (foundId != null) {
 			// get the market id for the given market name
 			foundId = getMarketId(foundId, marketName);
 		}
-		
+
 		return foundId;
 	}
 
 	/**
+	 * Obtain the identifier of a market for a given event identifer and market
+	 * name.
 	 * 
 	 * @param eventId
+	 *            event identifier eg 2022802 - Premier League
 	 * @param marketName
-	 * @return
+	 *            market name eg Match Odds, Half Time return Integer market
+	 *            identifier.
 	 */
 	public Integer getMarketId(int eventId, String marketName) {
 
-		// identify selection but due to throttling wait for 12 secs before calling
+		// identify selection but due to throttling wait for 12 secs before
+		// calling
 		try {
 			Thread.sleep(12000);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		
+
 		Integer marketId = null;
 
 		GetEventsReq getEventsReq = new GetEventsReq();
@@ -78,37 +92,46 @@ public class EventsService {
 
 		// get the markets
 		GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
-		if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
-			System.out.println("EventsService - getMarketId - " + getEventsResp.getErrorCode());
-		}
-		List<MarketSummary> markets = getEventsResp.getMarketItems()
-				.getMarketSummary();
+		
+		if (getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK)) {
+			
+			List<MarketSummary> markets = getEventsResp.getMarketItems()
+					.getMarketSummary();
 
-		// loop through the runners to find the market
-		int i = 0;
-		while ((marketId == null) && (i < markets.size())) {
-						
-			if (markets.get(i).getMarketName().equals(marketName)) {
-				marketId = markets.get(i).getMarketId();
-			}
-			if (markets.get(i).getMarketName().equals(marketName+" Unmanaged")) {
-				marketId = markets.get(i).getMarketId();
-			}
-			i++;
-		}
+			// loop through the runners to find the market
+			int i = 0;
+			while ((marketId == null) && (i < markets.size())) {
 
+				if (markets.get(i).getMarketName().equals(marketName)) {
+					marketId = markets.get(i).getMarketId();
+				}
+				i++;
+			}
+		}
+		
 		return marketId;
 	}
 
-	public Integer getEventId(int parentEventId, String fixture) {
+	/**
+	 * Obtain the identifier of an event for a given parent event identifer and
+	 * event name.
+	 * 
+	 * @param eventId
+	 *            event identifier eg 2022802 - Premier League
+	 * @param eventName
+	 *            event name eg Man Utd v Man City return Integer event
+	 *            identifier.
+	 */
+	public Integer getEventId(int parentEventId, String eventName) {
 
-		// identify selection but due to throttling wait for 12 secs before calling
+		// identify selection but due to throttling wait for 12 secs before
+		// calling
 		try {
 			Thread.sleep(12000);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		
+
 		Integer eventId = null;
 
 		GetEventsReq getEventsReq = new GetEventsReq();
@@ -117,20 +140,19 @@ public class EventsService {
 
 		// get the events
 		GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
-		if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
-			System.out.println("EventsService - getEventId - " + getEventsResp.getErrorCode());
-		}
-		if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.INVALID_EVENT_ID))) {
+
+		if (getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK)) {
+
 			List<BFEvent> events = getEventsResp.getEventItems().getBFEvent();
 
 			// loop through the events to find the event
 			int i = 0;
 			while ((eventId == null) && (i < events.size())) {
-			
-				if (events.get(i).getEventName().contains(fixture)) {
+
+				if (events.get(i).getEventName().contains(eventName)) {
 					eventId = events.get(i).getEventId();
 				} else {
-					eventId = getEventId(events.get(i).getEventId(), fixture);
+					eventId = getEventId(events.get(i).getEventId(), eventName);
 				}
 				i++;
 			}
@@ -139,5 +161,5 @@ public class EventsService {
 		return eventId;
 
 	}
-	
+
 }

@@ -4,11 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.betfair.publicapi.types.exchange.v5.APIRequestHeader;
-import com.betfair.publicapi.types.exchange.v5.ArrayOfBet;
 import com.betfair.publicapi.types.exchange.v5.ArrayOfRunnerPrices;
-import com.betfair.publicapi.types.exchange.v5.Bet;
-import com.betfair.publicapi.types.exchange.v5.BetStatusEnum;
-import com.betfair.publicapi.types.exchange.v5.BetTypeEnum;
 import com.betfair.publicapi.types.exchange.v5.GetMarketErrorEnum;
 import com.betfair.publicapi.types.exchange.v5.GetMarketPricesReq;
 import com.betfair.publicapi.types.exchange.v5.GetMarketPricesResp;
@@ -19,7 +15,6 @@ import com.betfair.publicapi.types.exchange.v5.Price;
 import com.betfair.publicapi.types.exchange.v5.Runner;
 import com.betfair.publicapi.types.exchange.v5.RunnerPrices;
 import com.betfair.publicapi.v5.bfexchangeservice.BFExchangeService;
-import com.city81.betfair.utilities.PriceOperator;
 
 /**
  * This class provides services for retrieving events.
@@ -31,9 +26,6 @@ public class MarketsService {
 
 	private BFExchangeService bfExchangeService;
 	private APIRequestHeader exchangeHeader;
-
-	private PlaceBetsService placeBetsService;
-	private MonitorBetsService monitorBetsService;
 
 	/**
 	 * Constructor taking as arguments the BFExchangeService used to execute the
@@ -49,17 +41,14 @@ public class MarketsService {
 			APIRequestHeader exchangeHeader) {
 		this.bfExchangeService = bfExchangeService;
 		this.exchangeHeader = exchangeHeader;
-
-		this.placeBetsService = new PlaceBetsService(bfExchangeService,
-				exchangeHeader);
-		this.monitorBetsService = new MonitorBetsService(bfExchangeService,
-				exchangeHeader);
 	}
 
 	/**
+	 * Obtain the id of the favourite for a specific market
 	 * 
 	 * @param marketId
-	 * @return
+	 *            market identifier
+	 * @return Integer the identifier of the shortest priced selection
 	 */
 	public Integer getFavourite(int marketId) {
 
@@ -104,22 +93,24 @@ public class MarketsService {
 	}
 
 	/**
+	 * Obtain the start time of of a particular market.
 	 * 
 	 * @param marketId
-	 * @param selectionName
-	 * @return
+	 *            market identifier.
+	 * @return Date start time of market
 	 */
 	public Date getMarketStartTime(int marketId) {
 
 		Date startTime = null;
-		
-		// identify selection but due to throttling wait for 12 secs before calling
+
+		// identify selection but due to throttling wait for 12 secs before
+		// calling
 		try {
 			Thread.sleep(24000);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		
+
 		GetMarketReq getMarketReq = new GetMarketReq();
 		getMarketReq.setHeader(exchangeHeader);
 		getMarketReq.setMarketId(marketId);
@@ -128,31 +119,33 @@ public class MarketsService {
 		GetMarketResp getMarketResp = bfExchangeService.getMarket(getMarketReq);
 
 		if (getMarketResp.getErrorCode().equals(GetMarketErrorEnum.OK)) {
-			startTime = getMarketResp.getMarket().getMarketTime().toGregorianCalendar().getTime();
-		} else {
-			System.out.println("Marketsservice - getMarketStartTime - " + getMarketResp.getHeader().getErrorCode());
+			startTime = getMarketResp.getMarket().getMarketTime()
+					.toGregorianCalendar().getTime();
 		}
-		
+
 		return startTime;
-	}	
-	
-	
+	}
+
 	/**
+	 * Obtain the identifier of a selection for a given market and a selection
+	 * name
 	 * 
 	 * @param marketId
+	 *            market identifier.
 	 * @param selectionName
-	 * @return
+	 *            name of selection eg Man Utd, Draw, Swansea/Fulham, Camelot,
+	 *            Astrology return Integer selection identifier.
 	 */
 	public Integer getSelectionId(int marketId, String selectionName) {
 
-		
-		// identify selection but due to throttling wait for 12 secs before calling
+		// identify selection but due to throttling wait for 12 secs before
+		// calling
 		try {
-			Thread.sleep(24000);
+			Thread.sleep(12000);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		
+
 		Integer selectionId = null;
 
 		GetMarketReq getMarketReq = new GetMarketReq();
@@ -162,108 +155,23 @@ public class MarketsService {
 		// get the market
 		GetMarketResp getMarketResp = bfExchangeService.getMarket(getMarketReq);
 
-		if (!(getMarketResp.getErrorCode().equals(GetMarketErrorEnum.OK))) {
-			System.out.println(getMarketResp.getErrorCode());
-			System.out.println(getMarketResp.getHeader().getErrorCode());
-		}
+		if (getMarketResp.getErrorCode().equals(GetMarketErrorEnum.OK)) {
 
-		List<Runner> runners = getMarketResp.getMarket().getRunners()
-				.getRunner();
+			List<Runner> runners = getMarketResp.getMarket().getRunners()
+					.getRunner();
 
-		// loop through the runners to find the match
-		int i = 0;
-		while ((selectionId == null) && (i < runners.size())) {
-			if (runners.get(i).getName().equals(selectionName)) {
-				selectionId = runners.get(i).getSelectionId();
-				break;
+			// loop through the runners to find the match
+			int i = 0;
+			while ((selectionId == null) && (i < runners.size())) {
+				if (runners.get(i).getName().equals(selectionName)) {
+					selectionId = runners.get(i).getSelectionId();
+					break;
+				}
+				i++;
 			}
-			i++;
 		}
-
+		
 		return selectionId;
-	}
-
-	/**
-	 * 
-	 * @param markets
-	 * @return
-	 */
-	public void updateUnmatchedBets(Integer marketId) {
-
-		// identify selection but due to throttling wait for 12 secs before calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
-		
-		ArrayOfBet betArray = null;
-		List<Bet> bets = null;
-
-		if ((betArray = monitorBetsService.getCurrentBets(marketId,
-				BetStatusEnum.U)) != null) {
-
-			bets = betArray.getBet();
-
-			// loop through the runners to find the market
-			for (Bet bet : bets) {
-
-				double newPrice;
-
-				if (bet.getBetType().equals(BetTypeEnum.B)) {
-					newPrice = PriceOperator.decrementPrice(bet.getPrice());
-				} else {
-					newPrice = PriceOperator.incrementPrice(bet.getPrice());
-				}
-
-				this.placeBetsService.updateBet(bet.getBetId(), bet.getPrice(),
-						newPrice, bet.getRemainingSize(),
-						bet.getRemainingSize(), bet.getBetPersistenceType(),
-						bet.getBetPersistenceType());
-			}
-		}
-	}
-
-	/**
-	 * 
-	 * @param market
-	 * @param selectionId
-	 */
-	public void updateUnmatchedBets(Integer market, Integer selectionId) {
-
-		// identify selection but due to throttling wait for 12 secs before calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
-		
-		ArrayOfBet betArray = null;
-		List<Bet> bets = null;
-
-		if ((betArray = monitorBetsService.getCurrentBets(market, selectionId,
-				BetStatusEnum.U)) != null) {
-
-			bets = betArray.getBet();
-
-			for (Bet bet : bets) {
-
-				double newPrice;
-
-				if (bet.getBetType().equals(BetTypeEnum.B)) {
-					newPrice = PriceOperator.decrementPrice(bet.getPrice());
-				} else {
-					newPrice = PriceOperator.incrementPrice(bet.getPrice());
-				}
-
-				this.placeBetsService.updateBet(bet.getBetId(), bet.getPrice(),
-						newPrice, bet.getRemainingSize(),
-						bet.getRemainingSize(), bet.getBetPersistenceType(),
-						bet.getBetPersistenceType());
-			}
-
-		}
-
 	}
 
 }
