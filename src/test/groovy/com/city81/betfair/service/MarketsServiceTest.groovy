@@ -16,6 +16,7 @@ import com.betfair.publicapi.types.exchange.v5.ArrayOfRunner;
 import com.betfair.publicapi.types.exchange.v5.Price;
 import com.betfair.publicapi.types.exchange.v5.Runner;
 import com.betfair.publicapi.types.exchange.v5.RunnerPrices;
+import javax.xml.datatype.*;
 
 import groovy.mock.interceptor.*
 import static org.mockito.Mockito.*
@@ -93,7 +94,11 @@ class MarketsServiceTest extends AbstractServiceTest {
 		runners.getRunner().add(runner2)
 		runners.getRunner().add(runner3)
 		runners.getRunner().add(runner4)
-		market.setRunners(runners)
+		market.setRunners(runners)			
+		
+		def marketStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+			new GregorianCalendar(2013,0,29,19,45,0))		
+		market.setMarketTime(marketStartTime)
 		
 	}	
 	
@@ -116,6 +121,53 @@ class MarketsServiceTest extends AbstractServiceTest {
 		then:             
 		assert favouriteId == 123456789
 		
+	}
+	
+	def "get market start time with OK error code"() {
+		
+		def marketId = 1;
+		
+		def getMarketResp = new GetMarketResp();
+		getMarketResp.setErrorCode(GetMarketErrorEnum.OK)
+		getMarketResp.setMarket(market)
+		
+		when(mockExchangeService.getMarket(
+			((GetMarketReq)anyObject()))).thenReturn(getMarketResp);
+				
+		given:
+		def marketsService = new MarketsService(mockExchangeService, mockExchangeHeader)
+		
+		when:
+		def startTime = marketsService.getMarketStartTime(marketId)
+		
+		then:
+		assert startTime.year == 113
+		assert startTime.month == 0
+		assert startTime.date == 29
+		assert startTime.hours == 19
+		assert startTime.minutes == 45
+		assert startTime.seconds == 0				
+	}
+
+	def "get market start time with INVALID_MARKET error code"() {
+		
+		def marketId = 1;
+		
+		def getMarketResp = new GetMarketResp();
+		getMarketResp.setErrorCode(GetMarketErrorEnum.INVALID_MARKET)
+		getMarketResp.setMarket(market)
+		
+		when(mockExchangeService.getMarket(
+			((GetMarketReq)anyObject()))).thenReturn(getMarketResp);
+				
+		given:
+		def marketsService = new MarketsService(mockExchangeService, mockExchangeHeader)
+		
+		when:
+		def startTime = marketsService.getMarketStartTime(marketId)
+		
+		then:
+		assert startTime == null
 	}
 
 	def "get selection id with OK error code"() {
