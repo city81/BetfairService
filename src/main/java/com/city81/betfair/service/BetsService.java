@@ -174,13 +174,6 @@ public class BetsService {
 	public ArrayOfBet getCurrentBets(BetStatusEnum betStatus, Integer marketId, 
 			Integer selectionId) {
 
-		// due to throttling wait for 12 secs before calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
-		
         GetCurrentBetsReq getMatchedBetsReq = new GetCurrentBetsReq();
         getMatchedBetsReq.setHeader(exchangeHeader);
         getMatchedBetsReq.setBetStatus(betStatus);
@@ -213,10 +206,45 @@ public class BetsService {
         	}
         }
         
-        return returnBets;
+        	return returnBets;
 	}	
 
-	
+	/**
+	 * Obtain current bets for a specific market and selection, and cancel them.
+	 * 
+	 * @param marketId market identifier. Can be null.
+	 * @param selectionId selection identifier. Can be null.
+	 */
+	public void cancelBets(int marketId, int selectionId) {
+
+        	GetCurrentBetsReq getMatchedBetsReq = new GetCurrentBetsReq();
+        	getMatchedBetsReq.setHeader(exchangeHeader);
+        	getMatchedBetsReq.setBetStatus(BetStatusEnum.U);
+        	getMatchedBetsReq.setDetailed(true);
+        	getMatchedBetsReq.setMarketId(marketId);
+        	getMatchedBetsReq.setOrderBy(BetsOrderByEnum.NONE);
+        	getMatchedBetsReq.setRecordCount(1000);
+        	getMatchedBetsReq.setStartRecord(0);
+
+        	GetCurrentBetsResp getMatchedBetsResp =
+                	bfExchangeService.getCurrentBets(getMatchedBetsReq);
+        
+        	ArrayOfBet bets = getMatchedBetsResp.getBets();
+        	ArrayOfBet returnBets = new ArrayOfBet();
+        
+        	if ((bets != null) && (bets.getBet().size() > 0)) {
+        	
+        		for (Bet bet : bets.getBet()) {
+        		
+	        		if (bet.getSelectionId() == selectionId) {
+	        			this.cancel(bet.getBetId());
+	        		}
+        		}
+        	}
+        
+	}	
+
+
 	/**
 	 * As the Betfair API does not allow bets less then 2 pounds, a workaround
 	 * is to place a 2 pound bet at a max or min price depending on whether it

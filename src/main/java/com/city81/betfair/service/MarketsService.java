@@ -3,6 +3,8 @@ package com.city81.betfair.service;
 import java.util.Date;
 import java.util.List;
 
+import com.betfair.publicapi.types.exchange.v5.GetMarketPricesCompressedReq;
+import com.betfair.publicapi.types.exchange.v5.GetMarketPricesCompressedResp;
 import com.betfair.publicapi.types.exchange.v5.APIRequestHeader;
 import com.betfair.publicapi.types.exchange.v5.ArrayOfRunnerPrices;
 import com.betfair.publicapi.types.exchange.v5.GetMarketErrorEnum;
@@ -174,4 +176,23 @@ public class MarketsService {
 		return selectionId;
 	}
 
+        /**
+	 * Obtain the compressed market prices for a particular market.
+	 *
+	 * @param marketId market identifier.
+	 * @return String compressed market prices
+	 */
+        public synchronized String getMarketPricesCompressed(int marketId) {
+
+		GetMarketPricesCompressedReq getMarketPricesCompressedReq 
+			= new GetMarketPricesCompressedReq();
+		getMarketPricesCompressedReq.setHeader(exchangeHeader);
+		getMarketPricesCompressedReq.setMarketId(marketId);
+
+		GetMarketPricesCompressedResp getMarketPricesCompressedResp = 
+			bfExchangeService.getMarketPricesCompressed(getMarketPricesCompressedReq);
+		return getMarketPricesCompressedResp.getMarketPrices();
+	}
+
 }
+

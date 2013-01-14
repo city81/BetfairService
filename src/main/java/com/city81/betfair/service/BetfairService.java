@@ -6,6 +6,7 @@ import com.betfair.publicapi.types.exchange.v5.ArrayOfBet;
 import com.betfair.publicapi.types.exchange.v5.BetPersistenceTypeEnum;
 import com.betfair.publicapi.types.exchange.v5.BetStatusEnum;
 import com.betfair.publicapi.types.exchange.v5.BetTypeEnum;
+import com.betfair.publicapi.types.global.v3.ArrayOfMarketSummary;
 import com.betfair.publicapi.types.global.v3.LoginReq;
 import com.betfair.publicapi.types.global.v3.LoginResp;
 import com.betfair.publicapi.v3.bfglobalservice.BFGlobalService;
@@ -29,7 +30,6 @@ public class BetfairService {
 	private BFGlobalService bfGlobalService;
 	private com.betfair.publicapi.types.exchange.v5.APIRequestHeader exchangeHeader;
 	private com.betfair.publicapi.types.global.v3.APIRequestHeader globalHeader;
-	private BetsService placeBetsService;
 	private EventsService eventsService;
 	private MarketsService marketsService;
 	private AccountsService accountsService;
@@ -67,8 +67,6 @@ public class BetfairService {
 
 		// create services
 		this.eventsService = new EventsService(bfGlobalService, globalHeader);
-		this.placeBetsService = new BetsService(bfExchangeService,
-				exchangeHeader);
 		this.marketsService = new MarketsService(bfExchangeService,
 				exchangeHeader);
 		this.accountsService = new AccountsService(bfExchangeService,
@@ -143,7 +141,7 @@ public class BetfairService {
 	}
 	
 	/**
-	 * Obtain the start time of of a particular market.
+	 * Obtain the start time of a particular market.
 	 *  
 	 * @param marketId market identifier.
 	 * @return Date start time of market
@@ -159,7 +157,7 @@ public class BetfairService {
 	 * @param eventId event identifier eg 2022802 - Premier League
 	 * @param eventName event name eg Man Utd v Man City
 	 * @param marketName market name eg Match Odds, Half Time
-	 * return Integer market identifier.
+	 * @return Integer market identifier.
 	 */
 	public synchronized Integer getMarketId(int eventId, String eventName, String marketName) {
 		return this.eventsService.getMarketId(eventId, eventName, marketName);
@@ -177,8 +175,38 @@ public class BetfairService {
 	 */
 	public synchronized void placeBet(BetTypeEnum betType, int marketId, int selectionId, 
 			double price, double stake, BetPersistenceTypeEnum betPersistenceType) {
-		this.placeBetsService.placeBet(betType, marketId, selectionId,
+		this.betsService.placeBet(betType, marketId, selectionId,
 				price, stake, betPersistenceType);			
+	}
+	
+	/**
+	 * Cencels bets for a particular market and selection.
+	 * 
+	 * @param marketId market identifier.
+	 * @param selectionId selection identifier.
+	 */
+	public synchronized void cancelBets(int marketId, int selectionId) {
+		this.betsService.cancelBets(marketId, selectionId);			
+	}
+	
+	/**
+	 * Obtain the collection of Market Summary objects for a given event parent id.
+	 *  
+	 * @param parentEventId parent event identifier eg 13 - Racing Markets
+	 * @return ArrayOfMarketSummary collection of Market Summary objects
+	 */
+	public synchronized ArrayOfMarketSummary getMarketSummaries(int parentEventId) {
+		return this.eventsService.getMarketSummaries(parentEventId);
+	}
+	
+	/**
+	 * Obtain the compressed market prices for a particular market.
+	 *  
+	 * @param marketId market identifier.
+	 * @return String compressed market prices
+	 */
+	public synchronized String getMarketPricesCompressed(int marketId) {
+		return this.marketsService.getMarketPricesCompressed(marketId);
 	}
 	
 }

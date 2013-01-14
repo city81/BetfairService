@@ -3,6 +3,7 @@ package com.city81.betfair.service;
 import java.util.List;
 
 import com.betfair.publicapi.types.global.v3.APIRequestHeader;
+import com.betfair.publicapi.types.global.v3.ArrayOfMarketSummary;
 import com.betfair.publicapi.types.global.v3.BFEvent;
 import com.betfair.publicapi.types.global.v3.GetEventsErrorEnum;
 import com.betfair.publicapi.types.global.v3.GetEventsReq;
@@ -162,4 +163,20 @@ public class EventsService {
 
 	}
 
+	/**
+	 * Obtain the collection of Market Summary objects for a given event parent id.
+	 *
+	 * @param parentEventId parent event identifier eg 13 - Racing Markets
+	 * @return ArrayOfMarketSummary collection of Market Summary objects
+	 */
+	public ArrayOfMarketSummary getMarketSummaries(int eventParentId) {
+ 
+        	GetEventsReq req = new GetEventsReq();
+        	req.setHeader(globalHeader);
+        	req.setEventParentId(eventParentId);
+        	GetEventsResp getEventsResp = bfGlobalService.getEvents(req);
+        	return getEventsResp.getMarketItems();
+	}
+
 }
+
