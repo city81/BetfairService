@@ -129,13 +129,6 @@ public class BetsService {
 	 */
 	public void updateUnmatchedBets(Integer market, Integer selectionId) {
 
-		// identify selection but due to throttling wait for 12 secs before calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
-		
 		ArrayOfBet betArray = null;
 		List<Bet> bets = null;
 

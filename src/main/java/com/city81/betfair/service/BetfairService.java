@@ -86,6 +86,16 @@ public class BetfairService {
 	}	
 	
 	/**
+	 * Obtain the id of the shortest odds against runner for a specific market
+	 * 
+	 * @param marketId market identifier
+	 * @return Integer the identifier of the shortest odds against runner
+	 */
+	public synchronized Integer getShortestOddsAgainstRunner(int marketId) {	
+		return this.marketsService.getShortestOddsAgainstRunner(marketId);				
+	}	
+	
+	/**
 	 * Update unmatched bets for a specific market and selection.
 	 * 
 	 * @param marketId market identifier

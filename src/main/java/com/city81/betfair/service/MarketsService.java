@@ -95,6 +95,71 @@ public class MarketsService {
 	}
 
 	/**
+	 * Obtain the id of the shortest odds against runner for a specific market
+	 *
+	 * @param marketId
+	 *            market identifier
+	 * @return Integer the identifier of the shortest odds against runner
+	 */
+	public Integer getShortestOddsAgainstRunner(int marketId) {
+
+		Integer shortestOddsAgainstRunnerId = null;
+		
+		GetMarketPricesReq getMarketPricesReq = new GetMarketPricesReq();
+		getMarketPricesReq.setHeader(exchangeHeader);
+		getMarketPricesReq.setMarketId(marketId);
+
+		// get the market prices
+		GetMarketPricesResp getMarketPricesResp = bfExchangeService
+				.getMarketPrices(getMarketPricesReq);
+
+		// loop through all the prices adding to arrays
+		MarketPrices marketPrices = getMarketPricesResp.getMarketPrices();
+
+		ArrayOfRunnerPrices arrayOfRunnerPrices = marketPrices
+				.getRunnerPrices();
+
+		RunnerPrices runnerPrices = null;
+
+		double bestBackPrice = 1000.0;
+		double secondBestBackPrice = 1000.0;
+
+		Integer favSelectionId = null;
+		Integer secondFavSelectionId = null;
+
+		Price price = null;
+
+		// find second fav
+		if ((arrayOfRunnerPrices.getRunnerPrices() != null)
+				&& (arrayOfRunnerPrices.getRunnerPrices().size() > 0)) {
+
+			for (int i = 0; i < arrayOfRunnerPrices.getRunnerPrices().size(); i++) {
+
+				runnerPrices = arrayOfRunnerPrices.getRunnerPrices().get(i);
+				price = runnerPrices.getBestPricesToBack().getPrice().get(0);
+
+				if ((price != null) && (price.getPrice() < bestBackPrice)) {
+					secondBestBackPrice = bestBackPrice;
+					secondFavSelectionId = favSelectionId; 
+					bestBackPrice = price.getPrice();
+					favSelectionId = runnerPrices.getSelectionId();
+				} else if ((price != null) && (price.getPrice() < secondBestBackPrice)) {
+					secondBestBackPrice = price.getPrice();
+					secondFavSelectionId = runnerPrices.getSelectionId();
+				}
+			}
+		}
+
+		if (bestBackPrice < 2.0) {
+			shortestOddsAgainstRunnerId = secondFavSelectionId;			
+		} else {
+			shortestOddsAgainstRunnerId = favSelectionId;
+		}
+
+		return shortestOddsAgainstRunnerId;
+	}
+
+	/**
 	 * Obtain the start time of of a particular market.
 	 * 
 	 * @param marketId
