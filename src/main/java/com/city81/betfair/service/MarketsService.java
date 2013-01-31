@@ -1,8 +1,11 @@
 package com.city81.betfair.service;
 
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.betfair.publicapi.types.exchange.v5.APIErrorEnum;
+import com.betfair.publicapi.types.exchange.v5.GetCurrentBetsResp;
 import com.betfair.publicapi.types.exchange.v5.GetMarketPricesCompressedReq;
 import com.betfair.publicapi.types.exchange.v5.GetMarketPricesCompressedResp;
 import com.betfair.publicapi.types.exchange.v5.APIRequestHeader;
@@ -95,13 +98,13 @@ public class MarketsService {
 	}
 
 	/**
-	 * Obtain the id of the shortest odds against runner for a specific market
+	 * Obtain the id of  a suitable runner for scalping
 	 *
 	 * @param marketId
 	 *            market identifier
-	 * @return Integer the identifier of the shortest odds against runner
+	 * @return Integer the identifier of the suitable runner for scalping
 	 */
-	public Integer getShortestOddsAgainstRunner(int marketId) {
+	public Integer getScalpingRunner(int marketId) {
 
 		Integer shortestOddsAgainstRunnerId = null;
 		
@@ -151,12 +154,68 @@ public class MarketsService {
 		}
 
 		if (bestBackPrice < 2.0) {
-			shortestOddsAgainstRunnerId = secondFavSelectionId;			
+			if (secondBestBackPrice < 8.0) {	
+				shortestOddsAgainstRunnerId = secondFavSelectionId;			
+			}
 		} else {
-			shortestOddsAgainstRunnerId = favSelectionId;
+			if (bestBackPrice < 8.0) {
+				shortestOddsAgainstRunnerId = favSelectionId;
+			}
 		}
 
 		return shortestOddsAgainstRunnerId;
+	}
+
+	/**
+	 * Obtain the ids of runners between two odds
+	 *
+	 * @param marketId market identifier
+	 * @param lowOdds low odds boundary
+	 * @param highOdds high odds boundary
+	 * @return List<Integer> the identifiers of the suitable selections
+	 */
+	public List<Integer> getRunnersInPriceRange(int marketId, double lowOdds, double highOdds) {
+
+		List<Integer> runnersList = new ArrayList<Integer>();
+		
+		GetMarketPricesReq getMarketPricesReq = new GetMarketPricesReq();
+		getMarketPricesReq.setHeader(exchangeHeader);
+		getMarketPricesReq.setMarketId(marketId);
+
+		// get the market prices
+		GetMarketPricesResp getMarketPricesResp = bfExchangeService
+				.getMarketPrices(getMarketPricesReq);
+
+		// loop through all the prices adding to arrays
+		MarketPrices marketPrices = getMarketPricesResp.getMarketPrices();
+
+		ArrayOfRunnerPrices arrayOfRunnerPrices = marketPrices
+				.getRunnerPrices();
+
+		RunnerPrices runnerPrices = null;
+
+		Price price = null;
+
+		// find second fav
+		if ((arrayOfRunnerPrices.getRunnerPrices() != null)
+				&& (arrayOfRunnerPrices.getRunnerPrices().size() > 0)) {
+
+			for (int i = 0; i < arrayOfRunnerPrices.getRunnerPrices().size(); i++) {
+
+				runnerPrices = arrayOfRunnerPrices.getRunnerPrices().get(i);
+				price = runnerPrices.getBestPricesToBack().getPrice().get(0);
+
+				if (price != null) {
+
+					if ((price.getPrice() > lowOdds) && 
+						(price.getPrice() < highOdds)) {
+						runnersList.add(runnerPrices.getSelectionId());
+					}
+				}
+			}
+		}
+
+		return runnersList;
 	}
 
 	/**
@@ -254,8 +313,32 @@ public class MarketsService {
 		getMarketPricesCompressedReq.setHeader(exchangeHeader);
 		getMarketPricesCompressedReq.setMarketId(marketId);
 
-		GetMarketPricesCompressedResp getMarketPricesCompressedResp = 
-			bfExchangeService.getMarketPricesCompressed(getMarketPricesCompressedReq);
+		GetMarketPricesCompressedResp getMarketPricesCompressedResp = null;
+		
+		boolean throttledExceeded = true;
+		
+		while (throttledExceeded) {
+			
+			getMarketPricesCompressedResp = 
+				bfExchangeService.getMarketPricesCompressed(getMarketPricesCompressedReq);
+
+			if ((getMarketPricesCompressedResp.getHeader().getErrorCode() != null) &&
+				(getMarketPricesCompressedResp.getHeader().getErrorCode().equals(APIErrorEnum.EXCEEDED_THROTTLE))) {
+				
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+			} else {
+				
+				throttledExceeded = false;
+				
+			}
+			
+		}
+		
 		return getMarketPricesCompressedResp.getMarketPrices();
 	}
 

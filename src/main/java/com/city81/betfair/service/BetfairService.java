@@ -1,6 +1,7 @@
 package com.city81.betfair.service;
 
 import java.util.Date;
+import java.util.List;
 
 import com.betfair.publicapi.types.exchange.v5.ArrayOfBet;
 import com.betfair.publicapi.types.exchange.v5.BetPersistenceTypeEnum;
@@ -86,13 +87,25 @@ public class BetfairService {
 	}	
 	
 	/**
-	 * Obtain the id of the shortest odds against runner for a specific market
+	 * Obtain the id of a suitable runner for scalping 
 	 * 
 	 * @param marketId market identifier
-	 * @return Integer the identifier of the shortest odds against runner
+	 * @return Integer the identifier of the suitable scalping runner
 	 */
-	public synchronized Integer getShortestOddsAgainstRunner(int marketId) {	
-		return this.marketsService.getShortestOddsAgainstRunner(marketId);				
+	public synchronized Integer getScalpingRunner(int marketId) {	
+		return this.marketsService.getScalpingRunner(marketId);				
+	}	
+	
+	/**
+	 * Obtain the ids of runner between two odds
+	 * 
+	 * @param marketId market identifier
+	 * @param lowOdds low odds boundary
+	 * @param highOdds high odds boundary
+	 * @return List<Integer> the identifiers of the suitable runners
+	 */
+	public synchronized List<Integer> getRunnersInPriceRange(int marketId, double lowOdds, double highOdds) {	
+		return this.marketsService.getRunnersInPriceRange(marketId, lowOdds, highOdds);				
 	}	
 	
 	/**
@@ -217,6 +230,16 @@ public class BetfairService {
 	 */
 	public synchronized String getMarketPricesCompressed(int marketId) {
 		return this.marketsService.getMarketPricesCompressed(marketId);
+	}
+	
+	/**
+	 * Obtain the profit (or loss) on a particular selection.
+	 * 
+	 * @param marketId market identifier.
+	 * @param selectionId selection identifier.
+	 */
+	public synchronized double getSelectionProfitLoss(int marketId, int selectionId) {
+		return this.betsService.getSelectionProfitLoss(marketId, selectionId);			
 	}
 	
 }
