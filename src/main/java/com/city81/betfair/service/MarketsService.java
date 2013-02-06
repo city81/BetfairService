@@ -325,6 +325,7 @@ public class MarketsService {
 			if ((getMarketPricesCompressedResp.getHeader().getErrorCode() != null) &&
 				(getMarketPricesCompressedResp.getHeader().getErrorCode().equals(APIErrorEnum.EXCEEDED_THROTTLE))) {
 				
+				System.out.println("EXCEEDED_THROTTLE - getMarketPricesCompressed");
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {

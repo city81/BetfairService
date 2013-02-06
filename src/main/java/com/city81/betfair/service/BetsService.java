@@ -210,6 +210,7 @@ public class BetsService {
 			if ((getMatchedBetsResp.getHeader().getErrorCode() != null) &&
 				(getMatchedBetsResp.getHeader().getErrorCode().equals(APIErrorEnum.EXCEEDED_THROTTLE))) {
 				
+				System.out.println("EXCEEDED_THROTTLE - getCurrentBets");
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
