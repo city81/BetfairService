@@ -327,7 +327,7 @@ public class MarketsService {
 				
 				System.out.println("EXCEEDED_THROTTLE - getMarketPricesCompressed");
 					try {
-						Thread.sleep(500);
+						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
