@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.betfair.publicapi.types.exchange.v5.ArrayOfBet;
+import com.betfair.publicapi.types.exchange.v5.ArrayOfMUBet;
 import com.betfair.publicapi.types.exchange.v5.BetPersistenceTypeEnum;
 import com.betfair.publicapi.types.exchange.v5.BetStatusEnum;
 import com.betfair.publicapi.types.exchange.v5.BetTypeEnum;
@@ -129,8 +130,8 @@ public class BetfairService {
 	public synchronized ArrayOfBet getCurrentBets(BetStatusEnum betStatus, 
 			Integer marketId, Integer selectionId) {
 		return this.betsService.getCurrentBets(betStatus, marketId, selectionId);
-	}
-
+	}	
+	
 	/**
 	 * Obtain the account balance for the logged in account.
 	 *  
@@ -157,10 +158,20 @@ public class BetfairService {
 	 * @param marketId market identifier.
 	 * @param selectionName name of selection eg Man Utd, Draw, 
 	 * 		Swansea/Fulham, Camelot, Astrology 
-	 * return Integer selection identifier.
+	 * @return Integer selection identifier.
 	 */
 	public synchronized Integer getSelectionId(int marketId, String selectionName) {
 		return this.marketsService.getSelectionId(marketId, selectionName);
+	}
+
+	/**
+  	 * Obtain the selection names for a given market
+  	 * 
+  	 * @param marketId market identifier.
+  	 * @return List<String> list of selection names
+  	 */
+	public synchronized List<String> getSelectionNames(int marketId) {
+		return this.marketsService.getSelectionNames(marketId);				
 	}
 	
 	/**

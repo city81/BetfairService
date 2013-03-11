@@ -264,14 +264,6 @@ public class MarketsService {
 	 */
 	public Integer getSelectionId(int marketId, String selectionName) {
 
-		// identify selection but due to throttling wait for 12 secs before
-		// calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
-
 		Integer selectionId = null;
 
 		GetMarketReq getMarketReq = new GetMarketReq();
@@ -299,6 +291,40 @@ public class MarketsService {
 		
 		return selectionId;
 	}
+
+	/**
+ 	 * Obtain the selection names for a given market
+ 	 * 
+ 	 * @param marketId market identifier.
+ 	 * @return List<String> list of selection names
+ 	 */
+	public List<String> getSelectionNames(int marketId) {
+
+		List<String> selectionNames = new ArrayList<String>();
+
+		GetMarketReq getMarketReq = new GetMarketReq();
+		getMarketReq.setHeader(exchangeHeader);
+		getMarketReq.setMarketId(marketId);
+		
+		// get the market
+		GetMarketResp getMarketResp = bfExchangeService.getMarket(getMarketReq);
+
+		if (getMarketResp.getErrorCode().equals(GetMarketErrorEnum.OK)) {
+
+			List<Runner> runners = 
+				getMarketResp.getMarket().getRunners().getRunner();
+	
+			// loop through the runners to retrieve names
+			int i = 0;
+			while (i < runners.size()) {
+				selectionNames.add(runners.get(i).getName());
+				i++;
+			}
+			
+		}
+		
+		return selectionNames;
+	}	
 
         /**
 	 * Obtain the compressed market prices for a particular market.

@@ -7,6 +7,7 @@ import com.betfair.publicapi.types.exchange.v5.APIErrorEnum;
 import com.betfair.publicapi.types.exchange.v5.APIRequestHeader;
 import com.betfair.publicapi.types.exchange.v5.ArrayOfBet;
 import com.betfair.publicapi.types.exchange.v5.ArrayOfCancelBets;
+import com.betfair.publicapi.types.exchange.v5.ArrayOfMUBet;
 import com.betfair.publicapi.types.exchange.v5.ArrayOfPlaceBets;
 import com.betfair.publicapi.types.exchange.v5.ArrayOfUpdateBets;
 import com.betfair.publicapi.types.exchange.v5.Bet;
@@ -20,7 +21,10 @@ import com.betfair.publicapi.types.exchange.v5.CancelBetsReq;
 import com.betfair.publicapi.types.exchange.v5.GetCurrentBetsErrorEnum;
 import com.betfair.publicapi.types.exchange.v5.GetCurrentBetsReq;
 import com.betfair.publicapi.types.exchange.v5.GetCurrentBetsResp;
+import com.betfair.publicapi.types.exchange.v5.GetMUBetsReq;
+import com.betfair.publicapi.types.exchange.v5.GetMUBetsResp;
 import com.betfair.publicapi.types.exchange.v5.GetMarketErrorEnum;
+import com.betfair.publicapi.types.exchange.v5.MUBet;
 import com.betfair.publicapi.types.exchange.v5.PlaceBets;
 import com.betfair.publicapi.types.exchange.v5.PlaceBetsReq;
 import com.betfair.publicapi.types.exchange.v5.PlaceBetsResp;
@@ -251,6 +255,7 @@ public class BetsService {
 
 		return returnBets;
 	}
+	
 
 	/**
 	 * Obtain profit (or loss) for a particular selection.
