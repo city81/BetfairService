@@ -175,6 +175,9 @@ public class EventsService {
         	req.setHeader(globalHeader);
         	req.setEventParentId(eventParentId);
         	GetEventsResp getEventsResp = bfGlobalService.getEvents(req);
+        	if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
+			System.out.println(getEventsResp.getHeader().getErrorCode());
+		}	
         	return getEventsResp.getMarketItems();
 	}
 
