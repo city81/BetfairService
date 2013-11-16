@@ -38,32 +38,32 @@ public class EventsService {
 		this.globalHeader = globalHeader;
 	}
 
-	/**
-	 * Obtain the identifier of a market for a given event identifer, event name
-	 * and market name.
-	 * 
-	 * @param eventId
-	 *            event identifier eg 2022802 - Premier League
-	 * @param eventName
-	 *            event name eg Man Utd v Man City
-	 * @param marketName
-	 *            market name eg Match Odds, Half Time return Integer market
-	 *            identifier.
-	 */
-	public Integer getMarketId(int eventId, String eventName, String marketName) {
-
-		Integer foundId = null;
-
-		// drill down to find the event
-		foundId = getEventId(eventId, eventName);
-
-		if (foundId != null) {
-			// get the market id for the given market name
-			foundId = getMarketId(foundId, marketName);
-		}
-
-		return foundId;
-	}
+//	/**
+//	 * Obtain the identifier of a market for a given event identifer, event name
+//	 * and market name.
+//	 * 
+//	 * @param eventId
+//	 *            event identifier eg 2022802 - Premier League
+//	 * @param eventName
+//	 *            event name eg Man Utd v Man City
+//	 * @param marketName
+//	 *            market name eg Match Odds, Half Time return Integer market
+//	 *            identifier.
+//	 */
+//	public Integer getMarketId(int eventId, String eventName, String marketName) {
+//
+//		Integer foundId = null;
+//
+//		// drill down to find the event
+//		foundId = getEventId(eventId, eventName);
+//
+//		if (foundId != null) {
+//			// get the market id for the given market name
+//			foundId = getMarketId(foundId, marketName);
+//		}
+//
+//		return foundId;
+//	}
 
 	/**
 	 * Obtain the identifier of a market for a given event identifer and market

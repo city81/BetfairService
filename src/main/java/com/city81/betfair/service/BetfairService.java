@@ -185,16 +185,27 @@ public class BetfairService {
 	}
 	
 	/**
-	 * Obtain the identifier of a market for a given event identifer, event name and 
-	 * market name.
+	 * Obtain the identifier of an event for a given event identifer and event name.
 	 *  
 	 * @param eventId event identifier eg 2022802 - Premier League
 	 * @param eventName event name eg Man Utd v Man City
+
+	 * @return Integer event identifier.
+	 */
+	public synchronized Integer getEventId(int eventId, String eventName) {
+		return this.eventsService.getEventId(eventId, eventName);
+	}
+	
+	/**
+	 * Obtain the identifier of a market for a given event identifer and market name.
+	 *  
+	 * @param eventId event identifier eg 20221243 - Man Utd v Man City
 	 * @param marketName market name eg Match Odds, Half Time
+	 * 
 	 * @return Integer market identifier.
 	 */
-	public synchronized Integer getMarketId(int eventId, String eventName, String marketName) {
-		return this.eventsService.getMarketId(eventId, eventName, marketName);
+	public synchronized Integer getMarketId(int eventId, String marketName) {
+		return this.eventsService.getMarketId(eventId, marketName);
 	}
 	
 	/**
