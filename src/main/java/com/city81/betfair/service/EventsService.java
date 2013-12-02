@@ -1,6 +1,10 @@
 package com.city81.betfair.service;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.betfair.publicapi.types.global.v3.APIRequestHeader;
 import com.betfair.publicapi.types.global.v3.ArrayOfMarketSummary;
@@ -19,167 +23,202 @@ import com.betfair.publicapi.v3.bfglobalservice.BFGlobalService;
  */
 public class EventsService {
 
-	private BFGlobalService bfGlobalService;
-	private APIRequestHeader globalHeader;
+    private BFGlobalService bfGlobalService;
+    private APIRequestHeader globalHeader;
+    private Map<String, Integer> eventMap = new HashMap<String, Integer>();
+    private Date eventMapExpireTime;
 
-	/**
-	 * Constructor taking as arguments the BFGlobalService used to execute the
-	 * bets, and the APIRequestHeader which contains the session ie login
-	 * credentials
-	 * 
-	 * @param bfGlobalService
-	 *            betfair service api
-	 * @param globalHeader
-	 *            request header containing the token
-	 */
-	public EventsService(BFGlobalService bfGlobalService,
-			APIRequestHeader globalHeader) {
-		this.bfGlobalService = bfGlobalService;
-		this.globalHeader = globalHeader;
-	}
+    /**
+     * Constructor taking as arguments the BFGlobalService used to execute the
+     * bets, and the APIRequestHeader which contains the session ie login
+     * credentials
+     * 
+     * @param bfGlobalService
+     *            betfair service api
+     * @param globalHeader
+     *            request header containing the token
+     */
+    public EventsService(BFGlobalService bfGlobalService,
+            APIRequestHeader globalHeader) {
+        
+        this.bfGlobalService = bfGlobalService;
+        this.globalHeader = globalHeader;
+        
+        Calendar eventMapExpireTimeCal = Calendar.getInstance();
+        if (eventMapExpireTimeCal.getTime().toString().contains("Dec 31")) {
+            eventMapExpireTimeCal.roll(Calendar.YEAR, 1);
+        }   
+        eventMapExpireTimeCal.roll(Calendar.DAY_OF_YEAR, 1);
+        this.eventMapExpireTime = eventMapExpireTimeCal.getTime();
+    }
 
-//	/**
-//	 * Obtain the identifier of a market for a given event identifer, event name
-//	 * and market name.
-//	 * 
-//	 * @param eventId
-//	 *            event identifier eg 2022802 - Premier League
-//	 * @param eventName
-//	 *            event name eg Man Utd v Man City
-//	 * @param marketName
-//	 *            market name eg Match Odds, Half Time return Integer market
-//	 *            identifier.
-//	 */
-//	public Integer getMarketId(int eventId, String eventName, String marketName) {
-//
-//		Integer foundId = null;
-//
-//		// drill down to find the event
-//		foundId = getEventId(eventId, eventName);
-//
-//		if (foundId != null) {
-//			// get the market id for the given market name
-//			foundId = getMarketId(foundId, marketName);
-//		}
-//
-//		return foundId;
-//	}
+    // /**
+    // * Obtain the identifier of a market for a given event identifer, event
+    // name
+    // * and market name.
+    // *
+    // * @param eventId
+    // * event identifier eg 2022802 - Premier League
+    // * @param eventName
+    // * event name eg Man Utd v Man City
+    // * @param marketName
+    // * market name eg Match Odds, Half Time return Integer market
+    // * identifier.
+    // */
+    // public Integer getMarketId(int eventId, String eventName, String
+    // marketName) {
+    //
+    // Integer foundId = null;
+    //
+    // // drill down to find the event
+    // foundId = getEventId(eventId, eventName);
+    //
+    // if (foundId != null) {
+    // // get the market id for the given market name
+    // foundId = getMarketId(foundId, marketName);
+    // }
+    //
+    // return foundId;
+    // }
 
-	/**
-	 * Obtain the identifier of a market for a given event identifer and market
-	 * name.
-	 * 
-	 * @param eventId
-	 *            event identifier eg 2022802 - Premier League
-	 * @param marketName
-	 *            market name eg Match Odds, Half Time return Integer market
-	 *            identifier.
-	 */
-	public Integer getMarketId(int eventId, String marketName) {
+    /**
+     * Obtain the identifier of a market for a given event identifer and market
+     * name.
+     * 
+     * @param eventId
+     *            event identifier eg 2022802 - Premier League
+     * @param marketName
+     *            market name eg Match Odds, Half Time return Integer market
+     *            identifier.
+     */
+    public Integer getMarketId(int eventId, String marketName) {
 
-		// identify selection but due to throttling wait for 12 secs before
-		// calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
+        // identify selection but due to throttling wait for 12 secs before
+        // calling
+        try {
+            Thread.sleep(12000);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
 
-		Integer marketId = null;
+        Integer marketId = null;
 
-		GetEventsReq getEventsReq = new GetEventsReq();
-		getEventsReq.setHeader(globalHeader);
-		getEventsReq.setEventParentId(eventId);
+        GetEventsReq getEventsReq = new GetEventsReq();
+        getEventsReq.setHeader(globalHeader);
+        getEventsReq.setEventParentId(eventId);
 
-		// get the markets
-		GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
-		
-		if (getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK)) {
-			
-			List<MarketSummary> markets = getEventsResp.getMarketItems()
-					.getMarketSummary();
+        // get the markets
+        GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
 
-			// loop through the runners to find the market
-			int i = 0;
-			while ((marketId == null) && (i < markets.size())) {
+        if (getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK)) {
 
-				if (markets.get(i).getMarketName().equals(marketName)) {
-					marketId = markets.get(i).getMarketId();
-				}
-				i++;
-			}
-		}
-		
-		return marketId;
-	}
+            List<MarketSummary> markets = getEventsResp.getMarketItems()
+                    .getMarketSummary();
 
-	/**
-	 * Obtain the identifier of an event for a given parent event identifer and
-	 * event name.
-	 * 
-	 * @param eventId
-	 *            event identifier eg 2022802 - Premier League
-	 * @param eventName
-	 *            event name eg Man Utd v Man City return Integer event
-	 *            identifier.
-	 */
-	public Integer getEventId(int parentEventId, String eventName) {
+            // loop through the runners to find the market
+            int i = 0;
+            while ((marketId == null) && (i < markets.size())) {
 
-		// identify selection but due to throttling wait for 12 secs before
-		// calling
-		try {
-			Thread.sleep(12000);
-		} catch (InterruptedException e) {
-			// do nothing
-		}
+                if (markets.get(i).getMarketName().equals(marketName)) {
+                    marketId = markets.get(i).getMarketId();
+                }
+                i++;
+            }
+        }
 
-		Integer eventId = null;
+        return marketId;
+    }
 
-		GetEventsReq getEventsReq = new GetEventsReq();
-		getEventsReq.setHeader(globalHeader);
-		getEventsReq.setEventParentId(parentEventId);
+    /**
+     * Obtain the identifier of an event for a given parent event identifer and
+     * event name.
+     * 
+     * @param eventId
+     *            event identifier eg 2022802 - Premier League
+     * @param eventName
+     *            event name eg Man Utd v Man City return Integer event
+     *            identifier.
+     */
+    public Integer getEventId(int parentEventId, String eventName) {
 
-		// get the events
-		GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
+        // clear map if eventMapExpireTime past
+        if (eventMapExpireTime.before(Calendar.getInstance().getTime())) {
+            Calendar eventMapExpireTimeCal = Calendar.getInstance();
+            if (eventMapExpireTimeCal.getTime().toString().contains("Dec 31")) {
+                eventMapExpireTimeCal.roll(Calendar.YEAR, 1);
+            }   
+            eventMapExpireTimeCal.roll(Calendar.DAY_OF_YEAR, 1);
+            eventMapExpireTime = eventMapExpireTimeCal.getTime();
+            eventMap.clear();
+            System.out.println("Cleared the market cache.");
+        }
 
-		if (getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK)) {
+        // check if event in the cache
+        if (eventMap.containsKey(eventName)) {
+            return eventMap.get(eventName);
+        }
 
-			List<BFEvent> events = getEventsResp.getEventItems().getBFEvent();
+        // identify selection but due to throttling wait for 12 secs before
+        // calling
+        try {
+            Thread.sleep(12000);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
 
-			// loop through the events to find the event
-			int i = 0;
-			while ((eventId == null) && (i < events.size())) {
+        Integer eventId = null;
 
-				if (events.get(i).getEventName().contains(eventName)) {
-					eventId = events.get(i).getEventId();
-				} else {
-					eventId = getEventId(events.get(i).getEventId(), eventName);
-				}
-				i++;
-			}
-		}
+        GetEventsReq getEventsReq = new GetEventsReq();
+        getEventsReq.setHeader(globalHeader);
+        getEventsReq.setEventParentId(parentEventId);
 
-		return eventId;
+        // get the events
+        GetEventsResp getEventsResp = bfGlobalService.getEvents(getEventsReq);
 
-	}
+        if (getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK)) {
 
-	/**
-	 * Obtain the collection of Market Summary objects for a given event parent id.
-	 *
-	 * @param parentEventId parent event identifier eg 13 - Racing Markets
-	 * @return ArrayOfMarketSummary collection of Market Summary objects
-	 */
-	public ArrayOfMarketSummary getMarketSummaries(int eventParentId) {
- 
-        	GetEventsReq req = new GetEventsReq();
-        	req.setHeader(globalHeader);
-        	req.setEventParentId(eventParentId);
-        	GetEventsResp getEventsResp = bfGlobalService.getEvents(req);
-        	if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
-			System.out.println(getEventsResp.getHeader().getErrorCode());
-		}	
-        	return getEventsResp.getMarketItems();
-	}
+            List<BFEvent> events = getEventsResp.getEventItems().getBFEvent();
+
+            // loop through the events to find the event
+            int i = 0;
+            while ((eventId == null) && (i < events.size())) {
+
+                System.out.println(events.get(i).getEventName() + " "
+                        + events.get(i).getEventId());
+
+                if (events.get(i).getEventName().contains(eventName)) {
+                    eventId = events.get(i).getEventId();
+                } else {
+                    eventMap.put(events.get(i).getEventName(), events.get(i)
+                            .getEventId());
+                    eventId = getEventId(events.get(i).getEventId(), eventName);
+                }
+                i++;
+            }
+        }
+
+        return eventId;
+
+    }
+
+    /**
+     * Obtain the collection of Market Summary objects for a given event parent
+     * id.
+     * 
+     * @param parentEventId
+     *            parent event identifier eg 13 - Racing Markets
+     * @return ArrayOfMarketSummary collection of Market Summary objects
+     */
+    public ArrayOfMarketSummary getMarketSummaries(int eventParentId) {
+
+        GetEventsReq req = new GetEventsReq();
+        req.setHeader(globalHeader);
+        req.setEventParentId(eventParentId);
+        GetEventsResp getEventsResp = bfGlobalService.getEvents(req);
+        if (!(getEventsResp.getErrorCode().equals(GetEventsErrorEnum.OK))) {
+            System.out.println(getEventsResp.getHeader().getErrorCode());
+        }
+        return getEventsResp.getMarketItems();
+    }
 
 }
-
